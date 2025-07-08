@@ -3,6 +3,7 @@ import ctypes
 import json
 import os
 import platform
+import asyncio
 from typing import Dict, Any
 
 
@@ -70,3 +71,7 @@ class GoTemplateEngine:
             raise ValueError(f"Error from Go renderer: {rendered_string}")
 
         return rendered_string
+
+    async def render_async(self, data: Dict[str, Any]) -> str:
+        """Asynchronously renders the template with the given data."""
+        return await asyncio.to_thread(self.render, data)

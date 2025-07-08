@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cognihub_pygotemplate"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
   { name="hsz", email="hsz1273327@gmail.com" },
 ]
