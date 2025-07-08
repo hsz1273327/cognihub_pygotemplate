@@ -65,13 +65,41 @@ except (RuntimeError, ValueError) as e:
 
 ```
 
-## Development Build
+## Development Workflow
+
+Full development cycle: Clean -> Build -> Type Check -> Test. Iterate until requirements are met, then package.
+
+### Clean
+
+```bash
+python setup.py clean
+```
+
+### Build
 
 ```bash
 python setup.py build_py
 ```
 
-## Build Wheels
+### Type Check
+
+```bash
+# Use mypy for type checking
+python setup.py type_check [--strict]
+```
+
+### Test
+
+```bash
+# 运行所有测试
+python setup.py test
+
+# 或者执行单条测试
+python -m unittest tests.test_engine.TestGoTemplateEngine.test_render
+# 或者使用自定义测试运行器
+```
+
+### Build Wheels
 
 ```bash
 # For current platform

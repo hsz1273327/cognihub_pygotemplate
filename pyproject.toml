@@ -11,12 +11,87 @@ authors = [
 description = "A Python wrapper for Go's text/template engine via CGo"
 readme = "README.md"
 requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["template", "go", "cgo", "text-template", "golang"]
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: General",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Go",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
 ]
 
-# 这个部分是可选的，但有助于 setuptools 更好地发现包
+[project.optional-dependencies]
+dev = [
+    "coverage>=7.0",
+    "wheel>=0.40",
+    "mypy>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/HszGitea/CogniHub/cognihub_pygotemplate"
+Repository = "https://github.com/HszGitea/CogniHub/cognihub_pygotemplate"
+Issues = "https://github.com/HszGitea/CogniHub/cognihub_pygotemplate/issues"
+
+# 包发现和数据文件配置
 [tool.setuptools]
 packages = ["cognihub_pygotemplate"]
+zip-safe = false
+
+[tool.setuptools.package-data]
+cognihub_pygotemplate = [
+    "*.so",      # Linux shared libraries
+    "*.dylib",   # macOS shared libraries  
+    "*.dll",     # Windows shared libraries
+    "*.h",       # C header files
+]
+
+# Coverage 配置
+[tool.coverage.run]
+source = ["cognihub_pygotemplate"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+
+# MyPy 类型检查配置
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+strict_optional = true
+
+# 对于外部库的配置
+[[tool.mypy.overrides]]
+module = [
+    "ctypes.*",
+    "setuptools.*",
+    "distutils.*",
+    "wheel.*",
+]
+ignore_missing_imports = true

@@ -62,13 +62,42 @@ except (RuntimeError, ValueError) as e:
     print(f"发生错误: {e}")
 ```
 
-## 开发构建
+## 开发流程
+
+完整的开发流程: 清理 -> 构建 -> 类型检查 -> 测试
+往复循环直到满足需求.最后执行打包
+
+### 清理
+
+```bash
+python setup.py clean
+```
+
+### 构建
 
 ```bash
 python setup.py build_py
 ```
 
-## 构建轮子包
+### 类型检查
+
+```bash
+# 使用mypy进行类型检查
+python setup.py type_check [--strict]
+```
+
+## 执行测试
+
+```bash
+# 运行所有测试
+python setup.py test
+
+# 或者执行单条测试
+python -m unittest tests.test_engine.TestGoTemplateEngine.test_render
+# 或者使用自定义测试运行器
+```
+
+## 构建wheel包
 
 ```bash
 # 为当前平台构建
