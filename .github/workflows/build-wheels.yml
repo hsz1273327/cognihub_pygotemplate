@@ -1,0 +1,116 @@
+name: Build and Publish Wheels
+
+# 触发工作流的事件
+on:
+  release:
+    types: [published]  # 当发布release时触发
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  build_wheels:
+    name: Build wheel for ${{ matrix.platform_name }} on Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-14-large, macos-14]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        include:
+          # 为每个OS定义平台信息和架构验证
+          - os: ubuntu-latest
+            platform_name: "Linux x86_64"
+            expected_arch: "x86_64"
+          - os: windows-latest
+            platform_name: "Windows x64"
+            expected_arch: "AMD64"
+          - os: macos-13
+            platform_name: "macOS Intel"
+            expected_arch: "x86_64"
+          - os: macos-14
+            platform_name: "macOS ARM64"
+            expected_arch: "arm64"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect and verify system architecture
+        run: |
+          echo "=== System Information ==="
+          echo "OS: $(uname -s)"
+          echo "Architecture: $(uname -m)"
+          echo "Platform: ${{ runner.os }}"
+          echo "Runner: ${{ matrix.os }}"
+          echo "Expected: ${{ matrix.platform_name }}"
+          
+          # 获取当前架构
+          CURRENT_ARCH=$(uname -m)
+          EXPECTED_ARCH="${{ matrix.expected_arch }}"
+          
+          echo "Current architecture: $CURRENT_ARCH"
+          echo "Expected architecture: $EXPECTED_ARCH"
+          
+          # 验证架构匹配
+          if [[ "$CURRENT_ARCH" == "$EXPECTED_ARCH" ]]; then
+            echo "✅ Architecture verification passed: $CURRENT_ARCH"
+          else
+            echo "❌ ERROR: Architecture mismatch!"
+            echo "   Expected: $EXPECTED_ARCH"
+            echo "   Detected: $CURRENT_ARCH"
+            echo "   This suggests the GitHub runner mapping may have changed."
+            exit 1
+          fi
+          
+          # 显示额外信息
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            echo "macOS Version: $(sw_vers -productVersion)"
+            echo "Hardware Model: $(sysctl -n hw.model)"
+          fi
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install wheel setuptools
+
+      - name: Build wheel
+        run: python setup.py bdist_wheel
+
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          path: dist/*.whl
+          retention-days: 1
+
+  publish_to_pypi:
+    name: Publish to PyPI
+    needs: build_wheels # 依赖于构建任务成功完成
+    runs-on: ubuntu-latest
+    # 仅在release发布时运行发布任务
+    if: github.event_name == 'release'
+    
+    steps:
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+          merge-multiple: true # 将所有artifacts合并到同一目录
+      
+      - name: List downloaded files
+        run: ls -la dist/
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # 使用PyPI的API token而不是用户名密码（更安全）
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          # 如果你使用的是TestPyPI，取消下面这行的注释
+          # repository-url: https://test.pypi.org/legacy/

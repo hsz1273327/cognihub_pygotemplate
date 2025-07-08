@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cognihub_pygotemplate"
+version = "0.0.1"
+authors = [
+  { name="hsz", email="hsz1273327@gmail.com" },
+]
+description = "A Python wrapper for Go's text/template engine via CGo"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+# 这个部分是可选的，但有助于 setuptools 更好地发现包
+[tool.setuptools]
+packages = ["cognihub_pygotemplate"]
